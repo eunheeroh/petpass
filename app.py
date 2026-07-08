@@ -101,10 +101,48 @@ st.markdown(
     [data-testid="stAppViewContainer"] *, [data-testid="stSidebar"] * {
         font-family: 'Gothic A1', sans-serif;
     }
+    /* -------------------------------------------------------------------
+       [중요] 아이콘 폰트 복구
+       위의 'Gothic A1 전체 적용'이 아이콘(사이드바 펼침 » 버튼 등)의
+       전용 폰트(Material Symbols)까지 덮어써서, 아이콘이 글자로 깨져
+       보이는 문제를 되돌립니다. 아이콘 요소만 원래 폰트로 되돌립니다.
+       ------------------------------------------------------------------- */
+    [data-testid="stIconMaterial"],
+    [data-testid="stAppViewContainer"] [data-testid="stIconMaterial"],
+    [data-testid="stSidebar"] [data-testid="stIconMaterial"],
+    span.material-icons, span.material-symbols-outlined,
+    span.material-symbols-rounded,
+    [class*="material-symbols"], [class*="material-icons"] {
+        font-family: 'Material Symbols Rounded', 'Material Symbols Outlined',
+                     'Material Icons' !important;
+    }
     /* 제목(h1~h3)은 굵게 강조 */
     h1, h2, h3 {
         font-family: 'Gothic A1', sans-serif !important;
         font-weight: 800;
+    }
+
+    /* -------------------------------------------------------------------
+       모든 글자를 검정으로 (다크모드 폰에서도 확실히 잘 보이도록)
+       - 제목/본문/캡션/입력라벨/푸터까지 전부 검정
+       - 단, 초록 배경 버튼의 흰 글자는 아래에서 예외 처리
+       ------------------------------------------------------------------- */
+    [data-testid="stAppViewContainer"], [data-testid="stSidebar"],
+    [data-testid="stAppViewContainer"] p,
+    [data-testid="stAppViewContainer"] span,
+    [data-testid="stAppViewContainer"] li,
+    [data-testid="stAppViewContainer"] label,
+    [data-testid="stSidebar"] label,
+    [data-testid="stMarkdownContainer"], [data-testid="stMarkdownContainer"] *,
+    [data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] *,
+    [data-testid="stMetricValue"], [data-testid="stMetricLabel"],
+    h1, h2, h3, h4, h5, h6 {
+        color: #000000 !important;
+    }
+    /* 예외: 진한 초록 primary 버튼(검색하기)의 글자는 흰색 유지 */
+    .stButton > button[kind="primary"],
+    .stButton > button[kind="primary"] * {
+        color: #ffffff !important;
     }
 
     /* 메인 화면 배경 — 위에서 아래로 연한 초록 그라데이션 */
