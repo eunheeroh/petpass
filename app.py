@@ -1034,7 +1034,16 @@ else:
             ).add_to(m)
 
         # folium 지도를 Streamlit 화면에 실제로 그립니다.
-        st_folium(m, width=None, height=450)
+        #  - returned_objects=[] : 지도 조작(이동/확대) 값을 되돌려주지 않게 하여
+        #    '계속 로딩중(무한 새로고침)' 문제를 막습니다.
+        #  - key="place_map" : 지도에 고정 키를 줘서 재실행 시 위젯을 안정적으로 재사용합니다.
+        st_folium(
+            m,
+            width=None,          # 컨테이너 폭에 맞춤(반응형)
+            height=450,
+            returned_objects=[],
+            key="place_map",
+        )
 
     # -------------------------------------------------------------------------
     # (아래) 검색 결과 분석 & 추천 — 지도/목록 밑에 전체 폭으로 표시
