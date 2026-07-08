@@ -160,15 +160,24 @@ st.markdown(
         background-color: #ffffff;
         border-color: #b7dfb9 !important;
     }
-    /* 기본 버튼을 그린 계열로 */
-    .stButton > button {
-        border-color: #2e7d32;
-        color: #1b5e20;
+    /* 일반 버튼('상세 보기 ▶' 등): 흰 배경 + 진한 초록 글자로 확실히 보이게.
+       (전체 글자를 검정으로 만드는 규칙에 덮여 버튼 글자가 안 보이던 문제 해결)
+       primary(검색하기) 버튼은 :not 으로 제외해 초록 배경을 유지합니다. */
+    .stButton > button:not([kind="primary"]) {
+        background-color: #ffffff !important;
+        border-color: #2e7d32 !important;
+        color: #1b5e20 !important;
     }
-    .stButton > button:hover {
-        border-color: #1b5e20;
-        color: #1b5e20;
-        background-color: #eaf5ea;
+    /* 버튼 안쪽 라벨 글자까지 초록으로 강제 (검정 규칙 방지) */
+    .stButton > button:not([kind="primary"]) p,
+    .stButton > button:not([kind="primary"]) span,
+    .stButton > button:not([kind="primary"]) div {
+        color: #1b5e20 !important;
+    }
+    .stButton > button:not([kind="primary"]):hover {
+        background-color: #eaf5ea !important;
+        border-color: #1b5e20 !important;
+        color: #1b5e20 !important;
     }
     /* primary 버튼(검색하기)은 진한 초록 배경 */
     .stButton > button[kind="primary"] {
