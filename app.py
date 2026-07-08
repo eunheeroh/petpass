@@ -71,6 +71,9 @@ st.set_page_config(
     page_title="펫패스(PetPass) — 반려동물 동반 출입 확인",
     page_icon="🐾",
     layout="wide",  # 화면을 넓게 사용
+    # 모바일에서는 검색 필터(사이드바)가 처음엔 접혀 있어야 화면이 넓게 보입니다.
+    # (PC 넓은 화면에서는 스트림릿이 자동으로 펼쳐 보여줍니다.)
+    initial_sidebar_state="collapsed",
 )
 
 # -----------------------------------------------------------------------------
@@ -143,6 +146,63 @@ st.markdown(
     .stButton > button[kind="primary"]:hover {
         background-color: #1b5e20;
         border-color: #1b5e20;
+    }
+
+    /* =====================================================================
+       반응형(Responsive) — 스마트폰/태블릿 대응
+       ---------------------------------------------------------------------
+       화면 폭에 따라 여백·글자크기를 줄이고, 지도/이미지가 화면을 넘지
+       않도록 합니다. (스트림릿은 좁은 화면에서 컬럼을 자동으로 세로로 쌓습니다.)
+       ===================================================================== */
+
+    /* 이미지·지도(iframe)가 항상 컨테이너 폭 안에 들어오도록 */
+    img, iframe {
+        max-width: 100% !important;
+        height: auto;
+    }
+    /* folium 지도가 부모 폭에 꽉 차도록 */
+    iframe[title="streamlit_folium.st_folium"] {
+        width: 100% !important;
+    }
+    /* 스마트폰에서는 지도 높이를 낮춰 스크롤 부담을 줄입니다. */
+    @media (max-width: 480px) {
+        iframe[title="streamlit_folium.st_folium"] {
+            height: 320px !important;
+        }
+    }
+
+    /* 메인 콘텐츠 기본 여백 */
+    .block-container {
+        padding-top: 2rem;
+        padding-bottom: 3rem;
+    }
+
+    /* 태블릿 이하 (가로 768px 이하) */
+    @media (max-width: 768px) {
+        .block-container {
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+            padding-top: 1rem !important;
+        }
+        h1 { font-size: 1.6rem !important; }
+        h2 { font-size: 1.3rem !important; }
+        h3 { font-size: 1.1rem !important; }
+        /* 지표(metric) 카드가 좁을 때 숫자가 잘리지 않도록 */
+        [data-testid="stMetricValue"] { font-size: 1.2rem; }
+    }
+
+    /* 스마트폰 (가로 480px 이하) */
+    @media (max-width: 480px) {
+        .block-container {
+            padding-left: 0.6rem !important;
+            padding-right: 0.6rem !important;
+        }
+        h1 { font-size: 1.35rem !important; }
+        h2 { font-size: 1.15rem !important; }
+        /* 3개짜리 지표 행이 좁아도 숫자가 잘리지 않도록 */
+        [data-testid="stMetricValue"] { font-size: 1.05rem; }
+        /* 버튼을 손가락으로 누르기 쉽게 살짝 키움 */
+        .stButton > button { padding: 0.5rem 0.75rem; }
     }
     </style>
     """,
@@ -605,6 +665,30 @@ with st.sidebar:
         horizontal=True,
         key="lang",
     )
+
+    # --- (0-1) 공공데이터 인증키 입력 ----------------------------------------
+    #   사용자가 자신의 인증키를 직접 넣습니다. (배포해도 각자 자기 키를 사용)
+    #   기본값은 secrets/환경변수에서 읽은 값(_load_service_key)이며, 비어 있으면 빈칸.
+    #   type="password" 로 화면에 키가 노출되지 않게 가립니다.
+    api_key_input = st.text_input(
+        t("🔑 공공데이터 인증키", "🔑 Public Data API key"),
+        value=st.session_state.get("api_key", _load_service_key()),
+        type="password",
+        help=t(
+            "공공데이터포털에서 발급받은 KorPetTourService2 인증키(Decoding 키 권장)를 붙여넣으세요. "
+            "끝의 '==' 같은 기호까지 빠짐없이 넣어야 합니다.",
+            "Paste your KorPetTourService2 key from data.go.kr (Decoding key recommended). "
+            "Include every character, e.g. the trailing '=='.",
+        ),
+        placeholder="예: xxxxxxxx...zzzz==",
+    )
+    # 입력한 키를 저장하고, 앱 전체에서 쓰는 전역 SERVICE_KEY 를 갱신합니다.
+    st.session_state["api_key"] = api_key_input
+    SERVICE_KEY = (api_key_input or "").strip()
+    # 키가 바뀌면 예전(실패)결과 캐시가 남지 않도록 캐시를 비웁니다.
+    if st.session_state.get("_prev_key") != SERVICE_KEY:
+        st.cache_data.clear()
+        st.session_state["_prev_key"] = SERVICE_KEY
 
     st.header(t("🐶 내 반려동물", "🐶 My Pet"))
 
